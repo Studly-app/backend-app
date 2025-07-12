@@ -1,0 +1,4 @@
+// commande de migrations de la base de donnée dans  cloudflare worker pour prisma
+npx prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script --output prisma/migrations/0001_create_studly_table.sql
+npx wrangler d1 migrations apply studly_db_migrations --local
+npx wrangler d1 migrations apply studly_db_migrations --remote

@@ -13,7 +13,17 @@
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	"d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "studly-database",     
+      "database_id": "e8d747e3-8b8e-47e6-a283-a24cdba47ec4",
+	  "migrations_table": "studly_db_migrations",
+      "migrations_dir": "prisma/migrations"
+    }
+  ]
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

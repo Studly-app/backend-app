@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  nom                 String?
+  prenom              String?
+  password            String
+  dataInscription     String?
+  derniereConnexion   DateTime?
+  typesUtilisateur    TypesUtilisateur      @default(USER)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  ReponsesUtilisateur ReponsesUtilisateur[]
+  LeconsUtilisateur   LeconsUtilisateur[]
+}
+
+model Classes {
+  id        String     @id @default(cuid())
+  nom       String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Matieres  Matieres[]
+}
+
+model Matieres {
+  id                 String      @id @default(cuid())
+  nom                String
+  description        String?
+  classesId          String
+  classes            Classes     @relation(fields: [classesId], references: [id])
+  pointsTotalMatiere Int?
+  pointsSeuilMatiere Int?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  Lecons             Lecons[]
+  Exercices          Exercices[]
+}
+
+model Lecons {
+  id                String              @id @default(cuid())
+  nom               String
+  description       String?
+  matieresId        String
+  matieres          Matieres            @relation(fields: [matieresId], references: [id])
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  SousLecons        SousLecons[]
+  LeconsUtilisateur LeconsUtilisateur[]
+  Exercices         Exercices[]
+}
+
+model SousLecons {
+  id          String      @id @default(cuid())
+  nom         String
+  description String?
+  leconsId    String
+  lecons      Lecons      @relation(fields: [leconsId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Exercices   Exercices[]
+}
+
+model Exercices {
+  id            String        @id @default(cuid())
+  nom           String
+  description   String?
+  matieresId    String
+  sousLeconsId  String?
+  leconId       String?
+  typesExercice TypesExercice @default(QCM)
+  sousLecons    SousLecons?   @relation(fields: [sousLeconsId], references: [id])
+  matieres      Matieres      @relation(fields: [matieresId], references: [id])
+  lecons        Lecons?       @relation(fields: [leconId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Reponses      Reponses[]
+  OptionsQCM    OptionsQCM[]
+}
+
+model OptionsQCM {
+  id          String    @id @default(cuid())
+  nom         String
+  description String?
+  exercicesId String
+  exercices   Exercices @relation(fields: [exercicesId], references: [id])
+  points      Int?
+  isCorrect   Boolean   @default(false)
+  isSelected  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model LeconsUtilisateur {
+  id        String   @id @default(cuid())
+  leconsId  String
+  lecons    Lecons   @relation(fields: [leconsId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Reponses {
+  id                  String                @id @default(cuid())
+  nom                 String
+  description         String?
+  exercicesId         String
+  exercices           Exercices             @relation(fields: [exercicesId], references: [id])
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  ReponsesUtilisateur ReponsesUtilisateur[]
+}
+
+model ReponsesUtilisateur {
+  id         String   @id @default(cuid())
+  reponsesId String
+  reponses   Reponses @relation(fields: [reponsesId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum TypesExercice {
+  QCM
+  Numerique
+}
+
+enum TypesUtilisateur {
+  ADMIN
+  USER
+  MODERATOR
+  ETUDIANT
+}
