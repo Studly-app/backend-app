@@ -62,11 +62,13 @@ CREATE TABLE "Exercices" (
     "description" TEXT,
     "matieresId" TEXT NOT NULL,
     "sousLeconsId" TEXT,
+    "leconId" TEXT,
     "typesExercice" TEXT NOT NULL DEFAULT 'QCM',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "Exercices_sousLeconsId_fkey" FOREIGN KEY ("sousLeconsId") REFERENCES "SousLecons" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Exercices_matieresId_fkey" FOREIGN KEY ("matieresId") REFERENCES "Matieres" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Exercices_matieresId_fkey" FOREIGN KEY ("matieresId") REFERENCES "Matieres" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Exercices_leconId_fkey" FOREIGN KEY ("leconId") REFERENCES "Lecons" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable

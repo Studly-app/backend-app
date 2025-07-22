@@ -15,14 +15,15 @@
 		"enabled": true
 	},
 	"d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "studly-database",     
-      "database_id": "e8d747e3-8b8e-47e6-a283-a24cdba47ec4",
-	  "migrations_table": "studly_db_migrations",
-      "migrations_dir": "prisma/migrations"
-    }
-  ]
+		{
+		"binding": "DB",
+		"database_name": "studly-database",     
+		"database_id": "e8d747e3-8b8e-47e6-a283-a24cdba47ec4",
+		"migrations_table": "studly_db_migrations",
+		"migrations_dir": "./prisma/migrations"
+		}, 
+	
+  	],
 
 	/**
 	 * Smart Placement
@@ -41,7 +42,7 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	// "vars": { "MY_VARIABLE": "production_value" },
+	
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
@@ -52,7 +53,7 @@
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
 	 */
 	// "assets": { "directory": "./public/", "binding": "ASSETS" },
-
+	"vars": { "JWT_SECRET": "G4k$pL8dN9$eJ#8dL3pA6sS5dM2oN4iB7aK9pR4eH8dG5nM2oL1sT6cE3dF8gH4jK2pN6bV9qR8tE5dS3fG4aK7pL2eH9dG8nM3oN6iB5sT4cE1dF6gH8jK3pR2qT5dS9fG4a" }
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings

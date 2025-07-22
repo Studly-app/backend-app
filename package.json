@@ -4,13 +4,14 @@
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
 		"migrate": "npx prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script --output ./prisma/migrations/0001_create_studly_table.sql",
-		"migrate-local":"npx wrangler d1 migrations apply studly_db_migrations --local",
-		"migrate-remote": "npx wrangler d1 migrations apply studly_db_migrations --remote",
+		"migrate-local": "npx wrangler d1 migrations apply studly-database --local",
+		"migrate-remote": "npx wrangler d1 migrations apply studly-database --remote",
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings"
 	},
 	"dependencies": {
+		"@hono/zod-validator": "^0.7.1",
 		"@prisma/adapter-d1": "^6.11.1",
-		"@prisma/client": "^6.11.1",
+		"@prisma/client": "^6.12.0",
 		"hono": "^4.8.4"
 	},
 	"devDependencies": {
