@@ -166,8 +166,6 @@ classes.get("/:id", zValidator("query", querySchema), async (c) => {
       },
       500
     );
-  } finally {
-    await prisma.$disconnect();
   }
 });
 
@@ -180,21 +178,21 @@ classes.post(
 
     const prisma = Prisma(env);
     try {
-      // const existingClasse = await prisma.classes.findFirstOrThrow({
-      //   where: {
-      //     nom: nom,
-      //   },
-      // });
+      const existingClasse = await prisma.classes.findFirst({
+        where: {
+          nom: nom,
+        },
+      });
 
-      // if (existingClasse) {
-      //   return json(
-      //     {
-      //       success: false,
-      //       error: "Une classe avec ce nom existe déjà",
-      //     },
-      //     400
-      //   );
-      // }
+      if (existingClasse) {
+        return json(
+          {
+            success: false,
+            error: "Une classe avec ce nom existe déjà",
+          },
+          400
+        );
+      }
       const result = await prisma.classes.create({
         data: {
           nom: nom as string,
