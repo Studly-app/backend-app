@@ -91,7 +91,7 @@ matieres.get("/:id", zValidator("query", querySchema), async (c) => {
     const id = c.req.param("id");
     const { include } = c.req.valid("query");
 
-    const includeOptions = {};
+    const includeOptions: IncludeOptionsTypes = {};
     if (include) {
       const includeArray = include.split(",");
       if (includeArray.includes("classes")) includeOptions.classes = true;
