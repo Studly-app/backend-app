@@ -43,9 +43,70 @@ const authMiddleware = async (c: any, next: () => Promise<void>) => {
 };
 
 // GET /classes - Récupérer toutes les classes
-classes.get("/", authMiddleware, ({ env, text }) => {
-  return text("Hello eleves!");
-});
+classes.get(
+  "/",
+  authMiddleware,
+  zValidator("query", querySchema),
+  async ({ env, text, req, json }) => {
+    const prisma = Prisma(env);
+    try {
+      const { include, limit, offset, search } = req.valid("query");
+
+      // Configuration des inclusions
+      const includeOptions: { Matieres?: { orderBy: { nom: "asc" } } } = {};
+      if (include) {
+        const includeArray = include.split(",");
+        if (includeArray.includes("matieres")) {
+          includeOptions.Matieres = {
+            orderBy: { nom: "asc" },
+          };
+        }
+      }
+
+      // Configuration du filtre de recherche
+      const where = search
+        ? {
+            nom: {
+              contains: search,
+              mode: "insensitive",
+            },
+          }
+        : {};
+
+      // Récupération des classes avec pagination
+      const [classes, total] = await Promise.all([
+        prisma.classes.findMany({
+          where,
+          include: includeOptions,
+          take: limit,
+          skip: offset,
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.classes.count({ where }),
+      ]);
+
+      return json({
+        success: true,
+        data: classes,
+        pagination: {
+          total,
+          limit,
+          offset,
+          hasMore: offset + limit < total,
+        },
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des classes:", error);
+      return json(
+        {
+          success: false,
+          error: "Erreur serveur lors de la récupération des classes",
+        },
+        500
+      );
+    }
+  }
+);
 
 // GET /classes/:id - Récupérer une classe par ID
 classes.get("/:id", zValidator("query", querySchema), async (c) => {
@@ -160,8 +221,6 @@ classes.post(
         status: "error",
         message: error,
       });
-    } finally {
-      await prisma.$disconnect();
     }
   }
 );
