@@ -128,7 +128,7 @@ classes.get("/:id", zValidator("query", querySchema), async (c) => {
     }
 
     // Configuration des inclusions
-    const includeOptions = {};
+    const includeOptions: { Matieres?: { orderBy: { nom: "asc" } } } = {};
     if (include) {
       const includeArray = include.split(",");
       if (includeArray.includes("matieres")) {
@@ -180,7 +180,9 @@ classes.post(
     try {
       const existingClasse = await prisma.classes.findFirst({
         where: {
-          nom: nom,
+          nom: {
+            equals: nom,
+          },
         },
       });
 
@@ -278,155 +280,159 @@ classes.post(
 //   }
 // });
 
-// // PUT /classes/:id - Mettre à jour une classe
-// classes.put("/:id", zValidator("json", updateClasseSchema), async (c) => {
-//   const prisma = Prisma(c.env);
+// PUT /classes/:id - Mettre à jour une classe
+classes.put(
+  "/:id/update",
+  zValidator("json", updateClasseSchema),
+  async ({ env, json, req }) => {
+    const prisma = Prisma(env);
 
-//   try {
-//     const id = c.req.param("id");
-//     const data = c.req.valid("json");
+    try {
+      const id = req.param("id");
+      const data = req.valid("json");
 
-//     // Validation de l'ID
-//     if (!id || typeof id !== "string") {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "ID de classe invalide",
-//         },
-//         400
-//       );
-//     }
+      // Validation de l'ID
+      if (!id || typeof id !== "string") {
+        return json(
+          {
+            success: false,
+            error: "ID de classe invalide",
+          },
+          400
+        );
+      }
 
-//     // Vérifier que la classe existe
-//     const existingClasse = await prisma.classes.findUnique({
-//       where: { id },
-//     });
+      // Vérifier que la classe existe
+      const existingClasse = await prisma.classes.findUnique({
+        where: { id },
+      });
 
-//     if (!existingClasse) {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "Classe non trouvée",
-//         },
-//         404
-//       );
-//     }
+      if (!existingClasse) {
+        return c.json(
+          {
+            success: false,
+            error: "Classe non trouvée",
+          },
+          404
+        );
+      }
 
-//     // Vérifier l'unicité du nom si on le change
-//     if (data.nom && data.nom !== existingClasse.nom) {
-//       const duplicateClasse = await prisma.classes.findFirst({
-//         where: {
-//           nom: {
-//             equals: data.nom,
-//             mode: "insensitive",
-//           },
-//           NOT: { id },
-//         },
-//       });
+      // Vérifier l'unicité du nom si on le change
+      if (data.nom && data.nom !== existingClasse.nom) {
+        const duplicateClasse = await prisma.classes.findFirst({
+          where: {
+            nom: {
+              equals: data.nom,
+              mode: "insensitive",
+            },
+            NOT: { id },
+          },
+        });
 
-//       if (duplicateClasse) {
-//         return c.json(
-//           {
-//             success: false,
-//             error: "Une classe avec ce nom existe déjà",
-//           },
-//           400
-//         );
-//       }
-//     }
+        if (duplicateClasse) {
+          return json(
+            {
+              success: false,
+              error: "Une classe avec ce nom existe déjà",
+            },
+            400
+          );
+        }
+      }
 
-//     const classe = await prisma.classes.update({
-//       where: { id },
-//       data,
-//     });
+      const classe = await prisma.classes.update({
+        where: { id },
+        data,
+      });
 
-//     return c.json({
-//       success: true,
-//       data: classe,
-//       message: "Classe mise à jour avec succès",
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de la mise à jour de la classe:", error);
-//     return c.json(
-//       {
-//         success: false,
-//         error: "Erreur serveur lors de la mise à jour de la classe",
-//       },
-//       500
-//     );
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// });
+      return json({
+        success: true,
+        data: classe,
+        message: "Classe mise à jour avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la classe:", error);
+      return json(
+        {
+          success: false,
+          error: "Erreur serveur lors de la mise à jour de la classe",
+        },
+        500
+      );
+    }
+  }
+);
 
-// // DELETE /classes/:id - Supprimer une classe
-// classes.delete("/:id", async (c) => {
-//   const prisma = Prisma(c.env);
+// DELETE /classes/:id - Supprimer une classe
+classes.delete(
+  "/:id/delete",
+  authMiddleware,
+  async ({ req, json, status, env }) => {
+    const prisma = Prisma(env);
 
-//   try {
-//     const id = c.req.param("id");
+    try {
+      const id = req.param("id");
 
-//     // Validation de l'ID
-//     if (!id || typeof id !== "string") {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "ID de classe invalide",
-//         },
-//         400
-//       );
-//     }
+      // Validation de l'ID
+      if (!id || typeof id !== "string") {
+        return json(
+          {
+            success: false,
+            error: "ID de classe invalide",
+          },
+          400
+        );
+      }
 
-//     // Vérifier que la classe existe et récupérer les matières associées
-//     const existingClasse = await prisma.classes.findUnique({
-//       where: { id },
-//       include: {
-//         Matieres: true,
-//       },
-//     });
+      // Vérifier que la classe existe et récupérer les matières associées
+      const existingClasse = await prisma.classes.findUnique({
+        where: { id },
+        include: {
+          Matieres: true,
+        },
+      });
 
-//     if (!existingClasse) {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "Classe non trouvée",
-//         },
-//         404
-//       );
-//     }
+      if (!existingClasse) {
+        return json(
+          {
+            success: false,
+            error: "Classe non trouvée",
+          },
+          404
+        );
+      }
 
-//     // Vérifier s'il y a des matières associées
-//     if (existingClasse.Matieres.length > 0) {
-//       return c.json(
-//         {
-//           success: false,
-//           error: `Impossible de supprimer la classe car elle contient ${existingClasse.Matieres.length} matière(s)`,
-//         },
-//         400
-//       );
-//     }
+      // Vérifier s'il y a des matières associées
+      if (existingClasse.Matieres.length > 0) {
+        return json(
+          {
+            success: false,
+            error: `Impossible de supprimer la classe car elle contient ${existingClasse.Matieres.length} matière(s)`,
+          },
+          400
+        );
+      }
 
-//     await prisma.classes.delete({
-//       where: { id },
-//     });
+      await prisma.classes.delete({
+        where: { id },
+      });
 
-//     return c.json({
-//       success: true,
-//       message: "Classe supprimée avec succès",
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de la suppression de la classe:", error);
-//     return c.json(
-//       {
-//         success: false,
-//         error: "Erreur serveur lors de la suppression de la classe",
-//       },
-//       500
-//     );
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// });
+      return json({
+        success: true,
+        message: "Classe supprimée avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la classe:", error);
+      return json(
+        {
+          success: false,
+          error: "Erreur serveur lors de la suppression de la classe",
+        },
+        500
+      );
+    }
+  }
+);
 
 // // GET /classes/:id/matieres - Récupérer les matières d'une classe
 // classes.get("/:id/matieres", zValidator("query", querySchema), async (c) => {
