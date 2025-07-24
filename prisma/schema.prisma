@@ -20,7 +20,7 @@ model User {
   password            String
   dataInscription     String?
   derniereConnexion   DateTime?
-  typesUtilisateur    TypesUtilisateur      @default(USER)
+  typesUtilisateur    TypesUtilisateur      @default(ELEVES)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   ReponsesUtilisateur ReponsesUtilisateur[]
@@ -141,7 +141,6 @@ enum TypesExercice {
 
 enum TypesUtilisateur {
   ADMIN
-  USER
   MODERATOR
-  ETUDIANT
+  ELEVES
 }
