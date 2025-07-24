@@ -51,8 +51,8 @@ const updateOptionQCMSchema = z.object({
 });
 
 // Applications Hono
-const exercicesApp = new Hono<{ Bindings: Env }>();
-const optionsQCMApp = new Hono<{ Bindings: Env }>();
+const exercicesApp = new Hono<{ Bindings: CloudflareBindings }>();
+const optionsQCMApp = new Hono<{ Bindings: CloudflareBindings }>();
 
 // Middleware d'authentification
 const authMiddleware = async (c: any, next: () => Promise<void>) => {

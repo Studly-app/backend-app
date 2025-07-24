@@ -169,6 +169,7 @@ classes.get("/:id", zValidator("query", querySchema), async (c) => {
   }
 });
 
+// POST /classes/new - Ajouter une nouvelle classe
 classes.post(
   "/new",
   authMiddleware,
@@ -186,7 +187,7 @@ classes.post(
         },
       });
 
-      if (existingClasse) {
+      if (!existingClasse) {
         return json(
           {
             success: false,
@@ -225,61 +226,6 @@ classes.post(
   }
 );
 
-// // POST /classes - Créer une nouvelle classe
-// classes.post("/", zValidator("json", createClasseSchema), async (c) => {
-//   const prisma = Prisma(c.env);
-
-//   try {
-//     const data = c.req.valid("json");
-
-//     // Vérifier l'unicité du nom
-//     const existingClasse = await prisma.classes.findFirst({
-//       where: {
-//         nom: {
-//           equals: data.nom,
-//           mode: "insensitive",
-//         },
-//       },
-//     });
-
-//     if (existingClasse) {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "Une classe avec ce nom existe déjà",
-//         },
-//         400
-//       );
-//     }
-
-//     const classe = await prisma.classes.create({
-//       data: {
-//         nom: data.nom,
-//       },
-//     });
-
-//     return c.json(
-//       {
-//         success: true,
-//         data: classe,
-//         message: "Classe créée avec succès",
-//       },
-//       201
-//     );
-//   } catch (error) {
-//     console.error("Erreur lors de la création de la classe:", error);
-//     return c.json(
-//       {
-//         success: false,
-//         error: "Erreur serveur lors de la création de la classe",
-//       },
-//       500
-//     );
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// });
-
 // PUT /classes/:id - Mettre à jour une classe
 classes.put(
   "/:id/update",
@@ -308,7 +254,7 @@ classes.put(
       });
 
       if (!existingClasse) {
-        return c.json(
+        return json(
           {
             success: false,
             error: "Classe non trouvée",
@@ -323,7 +269,6 @@ classes.put(
           where: {
             nom: {
               equals: data.nom,
-              mode: "insensitive",
             },
             NOT: { id },
           },
@@ -434,91 +379,94 @@ classes.delete(
   }
 );
 
-// // GET /classes/:id/matieres - Récupérer les matières d'une classe
-// classes.get("/:id/matieres", zValidator("query", querySchema), async (c) => {
-//   const prisma = Prisma(c.env);
+// GET /classes/:id/matieres - Récupérer les matières d'une classe
+classes.get(
+  "/:id/matieres",
+  authMiddleware,
+  zValidator("query", querySchema),
+  async ({ json, env, req }) => {
+    const prisma = Prisma(env);
 
-//   try {
-//     const id = c.req.param("id");
-//     const { limit, offset, search } = c.req.valid("query");
+    try {
+      const id = req.param("id");
+      const { limit, offset, search } = req.valid("query");
 
-//     // Validation de l'ID
-//     if (!id || typeof id !== "string") {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "ID de classe invalide",
-//         },
-//         400
-//       );
-//     }
+      // Validation de l'ID
+      if (!id || typeof id !== "string") {
+        return json(
+          {
+            success: false,
+            error: "ID de classe invalide",
+          },
+          400
+        );
+      }
 
-//     // Vérifier que la classe existe
-//     const classe = await prisma.classes.findUnique({
-//       where: { id },
-//     });
+      // Vérifier que la classe existe
+      const classe = await prisma.classes.findUnique({
+        where: { id },
+      });
 
-//     if (!classe) {
-//       return c.json(
-//         {
-//           success: false,
-//           error: "Classe non trouvée",
-//         },
-//         404
-//       );
-//     }
+      if (!classe) {
+        return json(
+          {
+            success: false,
+            error: "Classe non trouvée",
+          },
+          404
+        );
+      }
 
-//     // Configuration du filtre de recherche pour les matières
-//     const where = {
-//       classesId: id,
-//       ...(search && {
-//         nom: {
-//           contains: search,
-//           mode: "insensitive",
-//         },
-//       }),
-//     };
+      // Configuration du filtre de recherche pour les matières
+      const where = {
+        classesId: id,
+        ...(search && {
+          nom: {
+            contains: search,
+            mode: "insensitive",
+          },
+        }),
+      };
 
-//     // Récupération des matières avec pagination
-//     const [matieres, total] = await Promise.all([
-//       prisma.matieres.findMany({
-//         where,
-//         take: limit,
-//         skip: offset,
-//         orderBy: { nom: "asc" },
-//       }),
-//       prisma.matieres.count({ where }),
-//     ]);
+      // Récupération des matières avec pagination
+      const [matieres, total] = await Promise.all([
+        prisma.matieres.findMany({
+          where,
+          take: limit,
+          skip: offset,
+          orderBy: { nom: "asc" },
+        }),
+        prisma.matieres.count({ where }),
+      ]);
 
-//     return c.json({
-//       success: true,
-//       data: {
-//         classe: {
-//           id: classe.id,
-//           nom: classe.nom,
-//         },
-//         matieres,
-//       },
-//       pagination: {
-//         total,
-//         limit,
-//         offset,
-//         hasMore: offset + limit < total,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de la récupération des matières:", error);
-//     return c.json(
-//       {
-//         success: false,
-//         error: "Erreur serveur lors de la récupération des matières",
-//       },
-//       500
-//     );
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// });
+      return json({
+        success: true,
+        data: {
+          classe: {
+            id: classe.id,
+            nom: classe.nom,
+          },
+          matieres,
+        },
+        pagination: {
+          total,
+          limit,
+          offset,
+          hasMore: offset + limit < total,
+        },
+      });
+    } catch (error) {
+      console.error("Erreur lors de la récupération des matières:", error);
+      return json(
+        {
+          success: false,
+          error: "Erreur serveur lors de la récupération des matières",
+        },
+        500
+      );
+    }
+  }
+);
 
 export default classes;
 
