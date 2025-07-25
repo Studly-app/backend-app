@@ -382,7 +382,7 @@ optionsQCMApp.post(
   async (c) => {
     try {
       const data = c.req.valid("json");
-      const prisma = getPrisma(c.env);
+      const prisma = Prisma(c.env);
 
       // Vérifier que l'exercice existe et est de type QCM
       const exercice = await prisma.exercices.findUnique({
@@ -424,7 +424,7 @@ optionsQCMApp.post(
 optionsQCMApp.get("/exercice/:exerciceId", authMiddleware, async (c) => {
   try {
     const exerciceId = c.req.param("exerciceId");
-    const prisma = getPrisma(c.env);
+    const prisma = Prisma(c.env);
 
     // Vérifier que l'exercice existe
     const exercice = await prisma.exercices.findUnique({
@@ -463,7 +463,7 @@ optionsQCMApp.get("/exercice/:exerciceId", authMiddleware, async (c) => {
 optionsQCMApp.get("/:id", authMiddleware, async (c) => {
   try {
     const id = c.req.param("id");
-    const prisma = getPrisma(c.env);
+    const prisma = Prisma(c.env);
 
     const option = await prisma.optionsQCM.findUnique({
       where: { id },
@@ -494,7 +494,7 @@ optionsQCMApp.put(
     try {
       const id = c.req.param("id");
       const data = c.req.valid("json");
-      const prisma = getPrisma(c.env);
+      const prisma = Prisma(c.env);
 
       const existingOption = await prisma.optionsQCM.findUnique({
         where: { id },
