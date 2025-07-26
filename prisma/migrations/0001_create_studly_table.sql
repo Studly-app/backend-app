@@ -7,9 +7,11 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "dataInscription" TEXT,
     "derniereConnexion" DATETIME,
-    "typesUtilisateur" TEXT NOT NULL DEFAULT 'USER',
+    "typesUtilisateur" TEXT NOT NULL DEFAULT 'ELEVE',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    "classesId" TEXT,
+    CONSTRAINT "User_classesId_fkey" FOREIGN KEY ("classesId") REFERENCES "Classes" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable

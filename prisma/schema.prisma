@@ -20,11 +20,13 @@ model User {
   password            String
   dataInscription     String?
   derniereConnexion   DateTime?
-  typesUtilisateur    TypesUtilisateur      @default(USER)
+  typesUtilisateur    TypesUtilisateur      @default(ELEVE)
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   ReponsesUtilisateur ReponsesUtilisateur[]
   LeconsUtilisateur   LeconsUtilisateur[]
+  classesId           String?
+  classe              Classes?              @relation(references: [id], fields: [classesId])
 }
 
 model Classes {
@@ -33,6 +35,7 @@ model Classes {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Matieres  Matieres[]
+  User      User[]
 }
 
 model Matieres {
@@ -141,7 +144,6 @@ enum TypesExercice {
 
 enum TypesUtilisateur {
   ADMIN
-  USER
+  ELEVE
   MODERATOR
-  ETUDIANT
 }

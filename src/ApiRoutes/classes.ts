@@ -128,11 +128,19 @@ classes.get("/:id", zValidator("query", querySchema), async (c) => {
     }
 
     // Configuration des inclusions
-    const includeOptions: { Matieres?: { orderBy: { nom: "asc" } } } = {};
+    const includeOptions: {
+      Matieres?: { orderBy: { nom: "asc" } };
+      User?: { orderBy: { nom: "asc" } };
+    } = {};
     if (include) {
       const includeArray = include.split(",");
       if (includeArray.includes("matieres")) {
         includeOptions.Matieres = {
+          orderBy: { nom: "asc" },
+        };
+      }
+      if (includeArray.includes("user")) {
+        includeOptions.User = {
           orderBy: { nom: "asc" },
         };
       }
